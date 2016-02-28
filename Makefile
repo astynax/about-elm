@@ -5,3 +5,6 @@ slides:
 
 watch:
 	hobbes Slides.elm | xargs -I {} $(MAKE_SLIDES)
+
+pack:
+	tar -cf dist/buffer.tar *.html static/*
