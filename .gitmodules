@@ -1,0 +1,3 @@
+[submodule "elm-slideshow"]
+	path = elm-slideshow
+	url = git@github.com:astynax/elm-slideshow.git

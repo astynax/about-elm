@@ -87,3 +87,8 @@ div.nav-bar {
     font-size: 100%;
     color: #596278;
 }
+
+.note {
+    font-size: 12pt;
+    font-weight: normal;
+}

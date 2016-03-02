@@ -1,42 +1,25 @@
 module Slides where
 
-import Effects exposing (Effects)
-import Keyboard
-import Signal exposing (Address, Signal)
+import Html exposing
+  (Html, text, a, p, pre, code, div, span, img, br, ul, li, small)
+import Html.Attributes exposing (class, href)
 
-import Html exposing (Html, text, a, p, pre, code, div, span, img, br, ul, li)
-import Html.Attributes exposing (class, href, src)
-import Html.Events exposing (onClick)
-
-import StartApp exposing (App, start)
+import SlideShow exposing (..)
 
 main : Signal Html
-main = app.html
+main = start slides |> .html
 
-app : App Model
-app =
-  StartApp.start
-  { init = (init slides, Effects.none)
-  , view = view
-  , update = update
-  , inputs = [ leftRight ]
-  }
-
-type Action = Forward | Backward
-
-type alias Slide = Address (Maybe.Maybe Action) -> Html.Html
-type alias UnindexedSlide = (Int, Int) -> Slide
-type alias Model = (List Slide, List Slide)
-
-slides : List UnindexedSlide
+slides : List Slide
 slides =
   [ title <| slide ""
       [ text "Разработка", nl
       , text "интерактивных", nl
       , text "Web-приложений", nl
       , text "на языке Elm", nl, nl
-      , img [ src "static/elm.png" ] []
+      , img_ "static/elm.png", nl, nl
+      , note [ text "Алексей Пирогов" ]
       ]
+
   , slide "Elm?"
       [ text "Elm, это"
       , ul_
@@ -49,6 +32,7 @@ slides =
           , text "FRP, Time-travel Debugging, ..."
           ]
       ]
+
   , slide "Установка"
       [ source
           "shell"
@@ -61,12 +45,10 @@ slides =
           , "elm-repl"
           ]
       ]
-  , slide "Синтаксис"
-      [ source
-          "elm"
-          "-- Алгебраические Типы Данных
 
-type Color = Red | Green | Blue
+  , slide "Синтаксис" <| snippet
+      "Алгебраические Типы Данных:"
+      "type Color = Red | Green | Blue
 
 type Point = Point Int Int
 
@@ -74,163 +56,45 @@ type Shape
   = Circle   Point Int
   | Triangle Point Point Point
   | Rect     Point Point"
-      ]
-  , slide "Синтаксис"
-      [ source
-          "elm"
-          "-- Записи (Records)
 
-type User =
+  , slide "Синтаксис" <| snippet
+      "Записи (Records):"
+      "type User =
   User { name : String
-       , age : Int
-       }
+       , age  : Int     }
 
 user = User { name = \"Moe\", age = 42 }
 
 userAge = user.age
 
 newUser = { user | age = user.age + 1 }"
-      ]
-  , slide "Синтаксис"
-      [ source
-          "elm"
-          "-- Функции
 
-add : Int -> Int -> Int
+  , slide "Синтаксис" <| snippet
+      "Функции"
+      "add : Int -> Int -> Int
 add x y = x + y
 
-wrap
-  : String -> String -> Int -> String
-wrap s1 s2 x =
-  String.append s1
-  <| String.append (toString x) s2
+add : Int -> Int
+add5 = add 5"
 
-inBrackets : Int -> String
-inBrackets = wrap \"[\" \"]\""
-      ]
-  , slide "Базис"
-      [ ul_
-          [ text "Element"
-          , text "Signal"
-          ]
-      ]
-  , demo
-  , slide "Model-View-Update"
-      [ ul_
-          [ code_ "evancz/start-app"
-          , code_ "evancz/elm-html"
-          , text "SimpleApp, Html"
-          ]
-      ]
-  , demo
-  , slide "Effects"
-      [ ul_
-          [ code_ "evancz/elm-effects"
-          , text "Effects"
-          ]
-      ]
-  , demo
-  , slide "HTTP"
-      [ ul_
-          [ code_ "evancz/elm-http"
-          , text "Http, Task"
-          ]
-      ]
-  , demo
-  , title <| slide "The End" <:: text "Вопросы?"
+  , slide "Базис" []
+
+  , slide "Model-View-Update" []
+
+  , title <| slide "The End" [ text "Вопросы?" ]
   ]
 
-init : List UnindexedSlide -> Model
-init slides =
-  let
-    count = List.length slides
-  in
-    ( slides |> List.indexedMap (\idx s -> s (idx + 1, count))
-    , []
-    )
 
-view : Address (Maybe Action) -> Model -> Html.Html
-view address model =
-  case model of
-    ((s :: _), _) -> s address
-    _ -> text "Oops!"
+note : List Html -> Html
+note =
+  span [ class "note" ]
 
 
-update : Maybe Action -> Model -> (Model, Effects a)
-update action model =
-  ( case (action, model) of
-      (Just Forward, ((s :: s' :: rest), prev)) ->
-        (s' :: rest, s :: prev)
-
-      (Just Backward, (rest, (s :: prev))) ->
-        (s :: rest, prev)
-
-      _ -> model
-  , Effects.none
-  )
-
--- input
-
-leftRight : Signal (Maybe Action)
-leftRight =
-  Keyboard.arrows
-    |> Signal.map (\ev ->
-                     case (ev.x, ev.y) of
-                       (-1, 0) -> Just Backward
-                       (1,  0) -> Just Forward
-                       _       -> Nothing
-                  )
-
--- view helpers
-
-slide : String -> List Html -> UnindexedSlide
-slide header content (idx, count) address =
-  let
-    navButton active label action =
-      a ( List.append
-            [ href "#" ]
-            (if active
-             then [ class "nav-btn"
-                  , onClick address action ]
-             else [ class "nav-btn disabled" ]
-            )
-        ) [ text label ]
-    navBar =
-      div [ class "nav-bar" ]
-            [ navButton (idx > 1) "<<" (Just Backward)
-            , div [ class "pages" ]
-                [ text <| toString idx
-                , text "/"
-                , text <| toString count
-                ]
-            , navButton (idx < count) ">>" (Just Forward)
-            ]
-  in
-    div [ class "slide" ]
-          [ div [ class "header" ] <:: text header
-          , div [ class "frame" ] [ div [ class "content" ] content ]
-          , navBar
-          ]
-
-title : UnindexedSlide -> UnindexedSlide
-title s i a = div [ class "title" ] [ s i a ]
-
-demo : UnindexedSlide
-demo = title <| slide "" <:: text "demo"
-
-nl : Html
-nl = br [] []
-
-ul_ : List Html -> Html
-ul_ = ul [] << List.map ((<::) (li []))
-
-code_ : String -> Html
-code_ = (<::) (code []) << text
-
-source : String -> String -> Html
-source hl s = pre [ class "src" ] <:: code [ class hl ] <:: text s
-
-
-infixr 9 <::
-(<::) : (List a -> b) -> a -> b
-(<::) f x = f [ x ]
+snippet : String -> String -> List Html
+snippet description content =
+  [ text description
+  , nl, nl
+  , source "elm" content
+  , nl
+  , note [ a [ href "http://elm-lang.org/try" ] [ text "try it" ] ]
+  ]
