@@ -1,5 +1,7 @@
 module Slides where
 
+import String
+
 import Html exposing
   (Html, text, a, p, pre, code, div, span, img, br, ul, li, small)
 import Html.Attributes exposing (class, href)
@@ -20,6 +22,8 @@ slides =
       , note [ text "Алексей Пирогов" ]
       ]
 
+  , section "Введение" "что за Elm?"
+
   , slide "Elm?"
       [ text "Elm, это"
       , ul_
@@ -33,11 +37,16 @@ slides =
           ]
       ]
 
+  , section "С чего начать?" "готовим окружение"
+
   , slide "Установка"
       [ source
           "shell"
           "$ npm install -g elm"
-      , ul_ <| List.map
+      ]
+
+  , slide "Компоненты"
+      [ ul_ <| List.map
           code_
           [ "elm-make"
           , "elm-package"
@@ -45,6 +54,40 @@ slides =
           , "elm-repl"
           ]
       ]
+
+  , slide "Минимальный проект"
+      [ source
+          "shell"
+          "$ tree
+.
+└── Main.elm
+
+0 directories, 1 file
+
+$ cat Main.elm
+module Main where
+
+import Graphics.Element exposing (show)
+
+main = show \"Hello World!\""
+      ]
+
+  , slide "Минимальный проект (запуск)"
+      [ source
+          "shell"
+          "$ elm-make Main.elm
+Some new packages are needed.
+Here is the upgrade plan.
+
+  Install:
+    elm-lang/core 3.0.0
+
+Do you approve of this plan? (y/n) y
+...
+Successfully generated index.html"
+      ]
+
+  , section "Синтаксис" "кратенько"
 
   , slide "Синтаксис" <| snippet
       "Алгебраические Типы Данных:"
@@ -59,11 +102,11 @@ type Shape
 
   , slide "Синтаксис" <| snippet
       "Записи (Records):"
-      "type User =
-  User { name : String
-       , age  : Int     }
+      "type alias User =
+  { name : String
+  , age  : Int    }
 
-user = User { name = \"Moe\", age = 42 }
+user = { name = \"Moe\", age = 42 }
 
 userAge = user.age
 
@@ -74,15 +117,37 @@ newUser = { user | age = user.age + 1 }"
       "add : Int -> Int -> Int
 add x y = x + y
 
-add : Int -> Int
+add5 : Int -> Int
 add5 = add 5"
 
-  , slide "Базис" []
+  , section "It's alive!" "галопом по FRP"
 
-  , slide "Model-View-Update" []
+  , slide "Базис"
+      [ code_ "Signal", text " + ", code_ "Element", text " = основа всего!"
+      , nl, nl
+      , text "Самый главный тип в приложении:"
+      , source
+          "elm"
+          "main : Signal Element
+main = show \"Hello world!\""
+      , nl
+      , text "Другой пример:"
+      , source
+           "elm"
+           "import Mouse
 
-  , title <| slide "The End" [ text "Вопросы?" ]
+Mouse.x        : Signal Int
+Mouse.position : Signal (Int, Int)
+Mouse.isDown   : Signal Bool"
+      ]
+
+  , section "The End" "Вопросы?"
   ]
+
+
+section : String -> String -> Slide
+section t n =
+  title <| slide "" [ text t, nl, note [ text n ] ]
 
 
 note : List Html -> Html
@@ -96,5 +161,13 @@ snippet description content =
   , nl, nl
   , source "elm" content
   , nl
-  , note [ a [ href "http://elm-lang.org/try" ] [ text "try it" ] ]
+  , note [ a_ "http://elm-lang.org/try" "try it" ]
   ]
+
+a_ : String -> String -> Html
+a_ url txt =
+  a [ href url ] [ text txt ]
+
+share : String -> String -> Html
+share id txt =
+  a_ (String.append "http://www.share-elm.com/sprout/" id) txt
