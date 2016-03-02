@@ -1,10 +1,11 @@
 module Slides where
 
+import Maybe exposing (Maybe(..))
 import String
 
 import Html exposing
-  (Html, text, a, p, pre, code, div, span, img, br, ul, li, small)
-import Html.Attributes exposing (class, href)
+  (Html, text, a, p, pre, code, div, span, img, br, ul, li, small, textarea)
+import Html.Attributes exposing (class, href, value)
 
 import SlideShow exposing (..)
 
@@ -99,6 +100,7 @@ type Shape
   = Circle   Point Int
   | Triangle Point Point Point
   | Rect     Point Point"
+      Nothing
 
   , slide "Синтаксис" <| snippet
       "Записи (Records):"
@@ -111,6 +113,7 @@ user = { name = \"Moe\", age = 42 }
 userAge = user.age
 
 newUser = { user | age = user.age + 1 }"
+      Nothing
 
   , slide "Синтаксис" <| snippet
       "Функции"
@@ -119,6 +122,7 @@ add x y = x + y
 
 add5 : Int -> Int
 add5 = add 5"
+      Nothing
 
   , section "It's alive!" "галопом по FRP"
 
@@ -133,13 +137,49 @@ main = show \"Hello world!\""
       , nl
       , text "Другой пример:"
       , source
-           "elm"
-           "import Mouse
+          "elm"
+          "import Mouse
 
 Mouse.x        : Signal Int
 Mouse.position : Signal (Int, Int)
 Mouse.isDown   : Signal Bool"
       ]
+
+   , slide "Базис" <| snippet
+      "Манипуляция сигналами:"
+      "clicks =
+  Signal.foldp (+) 0
+  <| Signal.map (always 1)
+       Mouse.clicks
+
+main =
+  Signal.map show
+  <| Signal.map2 (,) clicks Mouse.isDown"
+      <| Just "import Graphics.Element exposing (centered)
+import Text
+import Signal
+import Mouse
+
+clicks =
+  Signal.foldp (+) 0
+  <| Signal.map (always 1)
+       Mouse.clicks
+
+main =
+  Signal.map show
+  <| Signal.map2 (,) clicks Mouse.isDown
+
+show =
+  centered << Text.height 40
+  << Text.fromString << toString"
+
+  , slide "Базис"
+      [ text "Ещё примеры:"
+      , ul_ [ share "56d6dd25e4b070fd20daa274" "red circle"
+            ]
+      ]
+
+  , slide "Model-View-Update" []
 
   , section "The End" "Вопросы?"
   ]
@@ -155,14 +195,22 @@ note =
   span [ class "note" ]
 
 
-snippet : String -> String -> List Html
-snippet description content =
-  [ text description
-  , nl, nl
-  , source "elm" content
-  , nl
-  , note [ a_ "http://elm-lang.org/try" "try it" ]
-  ]
+snippet : String -> String -> Maybe String -> List Html
+snippet description content paste =
+  List.append
+    [ text description
+    , nl, nl
+    , source "elm" content
+    ]
+  <| Maybe.withDefault [] <| Maybe.map (\x ->
+    [ nl
+    , note
+        [ text "Try it "
+        , a_ "http://elm-lang.org/try" "here"
+        , text " by copy&pasting this:"
+        , textarea [ value x ] [] ]
+    ]
+    ) paste
 
 a_ : String -> String -> Html
 a_ url txt =
