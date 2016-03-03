@@ -96,3 +96,7 @@ div.nav-bar {
 textarea {
     height: 18px;
 }
+
+div.center {
+    text-align: center;
+}

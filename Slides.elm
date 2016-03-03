@@ -5,7 +5,7 @@ import String
 
 import Html exposing
   (Html, text, a, p, pre, code, div, span, img, br, ul, li, small, textarea)
-import Html.Attributes exposing (class, href, value)
+import Html.Attributes exposing (class, href, value, target)
 
 import SlideShow exposing (..)
 
@@ -91,7 +91,7 @@ Successfully generated index.html"
   , section "Синтаксис" "кратенько"
 
   , slide "Синтаксис" <| snippet
-      "Алгебраические Типы Данных:"
+      [ text "Алгебраические Типы Данных:" ]
       "type Color = Red | Green | Blue
 
 type Point = Point Int Int
@@ -103,7 +103,7 @@ type Shape
       Nothing
 
   , slide "Синтаксис" <| snippet
-      "Записи (Records):"
+      [ text "Записи (Records):" ]
       "type alias User =
   { name : String
   , age  : Int    }
@@ -116,7 +116,7 @@ newUser = { user | age = user.age + 1 }"
       Nothing
 
   , slide "Синтаксис" <| snippet
-      "Функции"
+      [ text "Функции" ]
       "add : Int -> Int -> Int
 add x y = x + y
 
@@ -124,9 +124,19 @@ add5 : Int -> Int
 add5 = add 5"
       Nothing
 
-  , section "It's alive!" "галопом по FRP"
+  , section "It's alive!" "Концепция, или галопом по FRP"
 
-  , slide "Базис"
+  , slide "Концепция"
+      [ div [ class "center" ]
+         [ text "\"Stream processing", nl
+         , text "lets us model systems that have state", nl
+         , text "without ever using", nl
+         , text "assignment or mutable data.\"", nl
+         , note [ text "SICP" ]
+         ]
+      ]
+
+  , slide "Концепция"
       [ code_ "Signal", text " + ", code_ "Element", text " = основа всего!"
       , nl, nl
       , text "Самый главный тип в приложении:"
@@ -145,8 +155,8 @@ Mouse.position : Signal (Int, Int)
 Mouse.isDown   : Signal Bool"
       ]
 
-   , slide "Базис" <| snippet
-      "Манипуляция сигналами:"
+   , slide "Концепция" <| snippet
+      [ text "Работа с сигналами:" ]
       "clicks =
   Signal.foldp (+) 0
   <| Signal.map (always 1)
@@ -173,17 +183,100 @@ show =
   centered << Text.height 40
   << Text.fromString << toString"
 
-  , slide "Базис"
+  , slide "Концепция"
       [ text "Ещё примеры:"
       , ul_ [ share "56d6dd25e4b070fd20daa274" "red circle"
-            ]
+            , share "56d7e93ce4b070fd20daa2e1" "blue circle" ]
       ]
 
-  , slide "Model-View-Update" []
+  , section "Ближе к Web" "Дайте уже мне HTML и CSS!"
+
+  , slide "Web" <| snippet
+      [ text "(HTML + CSS) * Elm = "
+      , package "evancz/elm-html/4.0.2" "elm-html"
+      , text ":"
+      ]
+      "page =
+  div [ class \"content\" ]
+    [ h1 [ style [ (\"color\", \"red\") ] ]
+         [ text \"Hello, World!\" ]
+    , ul [ id \"items\" ]
+         [ item \"apple\"
+         , item \"orange\" ]]
+
+item x = li [] [ text x ]"
+     <| Just "import Html exposing (..)
+import Html.Attributes exposing (..)
+import Signal
+
+main =
+  Signal.constant page
+
+page =
+  div [ class \"content\" ]
+    [ h1 [ style [ (\"color\", \"red\") ] ]
+       [ text \"Hello, World!\" ]
+    , ul [ id \"items\" ]
+       [ item \"apple\"
+       , item \"orange\" ]]
+
+item x = li [] [ text x ]"
+
+  , slide "Web" <| snippet
+      [ text "Model-View-Action-Update ("
+      , package "evancz/start-app/2.0.2" "start-app"
+      , text "):"
+      ]
+      "model : Model
+
+view : Model -> Html
+
+update : Action -> Model -> Model"
+      <| Just "import StartApp.Simple as StartApp
+import Html exposing (..)
+import Html.Events exposing (onClick)
+
+type Action = Inc | Dec
+
+main =
+  StartApp.start
+  { model = model
+  , view = view
+  , update = update
+  }
+
+model = 0
+
+view address model =
+  div []
+    [ h1 [] [ text <| toString model ]
+    , button [ onClick address Dec ] [ text \"-\" ]
+    , button [ onClick address Inc ] [ text \"+\" ]
+    ]
+
+update action model =
+  case action of
+    Inc -> model + 1
+    Dec -> model - 1"
+
+  , section "Напоследок" "Да-да, уже почти конец!"
+
+  , slide "Напоследок"
+      [ text "Стоит упомянуть:"
+      , ul_
+          [ a_ "http://elm-lang.org/guide/interop#ports" "JavaScript interop"
+          , a_ "https://evancz.github.io/todomvc-perf-comparison/" "Benchmarks!"
+          , a_ "http://debug.elm-lang.org/" "Time Traveling Debugger"
+          , a_ "http://builtwithelm.co/" "\"Built with Elm\""
+          , a_ "http://www.elm-tutorial.org/" "Elm tutorial"
+          ]
+      ]
 
   , section "The End" "Вопросы?"
   ]
 
+--------------------------------------------------------------------------------
+--| Helpers
 
 section : String -> String -> Slide
 section t n =
@@ -195,27 +288,34 @@ note =
   span [ class "note" ]
 
 
-snippet : String -> String -> Maybe String -> List Html
+snippet : List Html -> String -> Maybe String -> List Html
 snippet description content paste =
   List.append
-    [ text description
-    , nl, nl
+    description
+  <| List.append
+    [ nl, nl
     , source "elm" content
     ]
   <| Maybe.withDefault [] <| Maybe.map (\x ->
     [ nl
     , note
-        [ text "Try it "
-        , a_ "http://elm-lang.org/try" "here"
-        , text " by copy&pasting this:"
-        , textarea [ value x ] [] ]
+        [ text "Скопируйте это "
+        , textarea [ value x ] []
+        , text " и попробуйте "
+        , a_ "http://elm-lang.org/try" "здесь"
+        , text "."
+        ]
     ]
     ) paste
 
 a_ : String -> String -> Html
 a_ url txt =
-  a [ href url ] [ text txt ]
+  a [ href url, target "blank" ] [ text txt ]
 
 share : String -> String -> Html
-share id txt =
-  a_ (String.append "http://www.share-elm.com/sprout/" id) txt
+share id =
+  a_ (String.append "http://www.share-elm.com/sprout/" id)
+
+package : String -> String -> Html
+package path =
+  a_ (String.append "http://package.elm-lang.org/packages/" path)
