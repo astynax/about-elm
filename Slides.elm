@@ -194,7 +194,9 @@ show =
   , slide "Web" <| snippet
       [ text "(HTML + CSS) * Elm = "
       , package "evancz/elm-html/4.0.2" "elm-html"
-      , text ":"
+      , text "("
+      , a_ "https://mbylstra.github.io/html-to-elm/" "*"
+      , text "):"
       ]
       "page =
   div [ class \"content\" ]
@@ -260,6 +262,29 @@ update action model =
     Dec -> model - 1"
 
   , section "Напоследок" "Да-да, уже почти конец!"
+
+  , slide "Напоследок"
+      [ text "Плюсы:"
+      , ul_
+         [ text "Отличный tooling!"
+         , text "Null-safety"
+         , text "Отсутствие исключений в runtime"
+         , a_ "https://github.com/evancz/elm-architecture-tutorial/"
+             "Elm architecture"
+         , a_ "http://package.elm-lang.org/" "Elm Packages"
+         ]
+      ]
+
+  , slide "Напоследок"
+      [ text "Минусы:"
+      , ul_
+         [ text "Язык ещё молод и всё ещё меняется"
+         , text "Elm - не General Purpose Language"
+         , text "Сообщество elmer'ов не слишком велико"
+         , text "Иногда приходится писать на JavaScript"
+         , text "Elm сияет, когда \"стоит у руля\""
+         ]
+      ]
 
   , slide "Напоследок"
       [ text "Стоит упомянуть:"
