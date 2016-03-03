@@ -10838,11 +10838,11 @@ Elm.StartApp.make = function (_elm) {
    var Config = F4(function (a,b,c,d) {    return {init: a,update: b,view: c,inputs: d};});
    return _elm.StartApp.values = {_op: _op,start: start,Config: Config,App: App};
 };
-Elm.Slides = Elm.Slides || {};
-Elm.Slides.make = function (_elm) {
+Elm.SlideShow = Elm.SlideShow || {};
+Elm.SlideShow.make = function (_elm) {
    "use strict";
-   _elm.Slides = _elm.Slides || {};
-   if (_elm.Slides.values) return _elm.Slides.values;
+   _elm.SlideShow = _elm.SlideShow || {};
+   if (_elm.SlideShow.values) return _elm.SlideShow.values;
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
    $Debug = Elm.Debug.make(_elm),
@@ -10858,11 +10858,12 @@ Elm.Slides.make = function (_elm) {
    $StartApp = Elm.StartApp.make(_elm);
    var _op = {};
    _op["<::"] = F2(function (f,x) {    return f(_U.list([x]));});
-   var source = F2(function (hl,s) {
+   var source = F2(function (syntax,s) {
       return A2(_op["<::"],
       $Html.pre(_U.list([$Html$Attributes.$class("src")])),
-      A2(_op["<::"],$Html.code(_U.list([$Html$Attributes.$class(hl)])),$Html.text(s)));
+      A2(_op["<::"],$Html.code(_U.list([$Html$Attributes.$class(syntax)])),$Html.text(s)));
    });
+   var img_ = function (s) {    return A2($Html.img,_U.list([$Html$Attributes.src(s)]),_U.list([]));};
    var code_ = function (_p0) {    return A2(F2(function (x,y) {    return A2(_op["<::"],x,y);}),$Html.code(_U.list([])),$Html.text(_p0));};
    var ul_ = function (_p1) {    return A2($Html.ul,_U.list([]),A2($List.map,F2(function (x,y) {    return A2(_op["<::"],x,y);})($Html.li(_U.list([]))),_p1));};
    var nl = A2($Html.br,_U.list([]),_U.list([]));
@@ -10926,6 +10927,9 @@ Elm.Slides.make = function (_elm) {
       return $Maybe.Nothing;
    },
    $Keyboard.arrows);
+   var start = function (slides) {
+      return $StartApp.start({init: {ctor: "_Tuple2",_0: init(slides),_1: $Effects.none},view: view,update: update,inputs: _U.list([leftRight])});
+   };
    var slide = F4(function (header,content,_p5,address) {
       var _p6 = _p5;
       var _p8 = _p6._0;
@@ -10938,89 +10942,205 @@ Elm.Slides.make = function (_elm) {
                           ,A2($Html$Events.onClick,address,action)]) : _U.list([$Html$Attributes.$class("nav-btn disabled")])),
          _U.list([$Html.text(label)]));
       });
-      var navBar = A2($Html.div,
-      _U.list([$Html$Attributes.$class("nav-bar")]),
-      _U.list([A3(navButton,_U.cmp(_p8,1) > 0,"<<",$Maybe.Just(Backward))
-              ,A2($Html.div,
-              _U.list([$Html$Attributes.$class("pages")]),
-              _U.list([$Html.text($Basics.toString(_p8)),$Html.text("/"),$Html.text($Basics.toString(_p7))]))
-              ,A3(navButton,_U.cmp(_p8,_p7) < 0,">>",$Maybe.Just(Forward))]));
       return A2($Html.div,
       _U.list([$Html$Attributes.$class("slide")]),
       _U.list([A2(_op["<::"],$Html.div(_U.list([$Html$Attributes.$class("header")])),$Html.text(header))
               ,A2($Html.div,_U.list([$Html$Attributes.$class("frame")]),_U.list([A2($Html.div,_U.list([$Html$Attributes.$class("content")]),content)]))
-              ,navBar]));
+              ,A2($Html.div,
+              _U.list([$Html$Attributes.$class("nav-bar")]),
+              _U.list([A3(navButton,_U.cmp(_p8,1) > 0,"<<",$Maybe.Just(Backward))
+                      ,A2($Html.div,
+                      _U.list([$Html$Attributes.$class("pages")]),
+                      _U.list([$Html.text($Basics.toString(_p8)),$Html.text("/"),$Html.text($Basics.toString(_p7))]))
+                      ,A3(navButton,_U.cmp(_p8,_p7) < 0,">>",$Maybe.Just(Forward))]))]));
    });
-   var demo = title(A2(_op["<::"],slide(""),$Html.text("demo")));
-   var slides = _U.list([title(A2(slide,
+   return _elm.SlideShow.values = {_op: _op,start: start,slide: slide,title: title,img_: img_,ul_: ul_,code_: code_,nl: nl,source: source};
+};
+Elm.Slides = Elm.Slides || {};
+Elm.Slides.make = function (_elm) {
+   "use strict";
+   _elm.Slides = _elm.Slides || {};
+   if (_elm.Slides.values) return _elm.Slides.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Html$Attributes = Elm.Html.Attributes.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $SlideShow = Elm.SlideShow.make(_elm),
+   $String = Elm.String.make(_elm);
+   var _op = {};
+   var a_ = F2(function (url,txt) {    return A2($Html.a,_U.list([$Html$Attributes.href(url),$Html$Attributes.target("blank")]),_U.list([$Html.text(txt)]));});
+   var share = function (id) {    return a_(A2($String.append,"http://www.share-elm.com/sprout/",id));};
+   var $package = function (path) {    return a_(A2($String.append,"http://package.elm-lang.org/packages/",path));};
+   var note = $Html.span(_U.list([$Html$Attributes.$class("note")]));
+   var snippet = F3(function (description,content,paste) {
+      return A2($List.append,
+      description,
+      A2($List.append,
+      _U.list([$SlideShow.nl,$SlideShow.nl,A2($SlideShow.source,"elm",content)]),
+      A2($Maybe.withDefault,
+      _U.list([]),
+      A2($Maybe.map,
+      function (x) {
+         return _U.list([$SlideShow.nl
+                        ,note(_U.list([$Html.text("Скопируйте это ")
+                                      ,A2($Html.textarea,_U.list([$Html$Attributes.value(x)]),_U.list([]))
+                                      ,$Html.text(" и попробуйте ")
+                                      ,A2(a_,"http://elm-lang.org/try","здесь")
+                                      ,$Html.text(".")]))]);
+      },
+      paste))));
+   });
+   var section = F2(function (t,n) {
+      return $SlideShow.title(A2($SlideShow.slide,"",_U.list([$Html.text(t),$SlideShow.nl,note(_U.list([$Html.text(n)]))])));
+   });
+   var slides = _U.list([$SlideShow.title(A2($SlideShow.slide,
                         "",
                         _U.list([$Html.text("Разработка")
-                                ,nl
+                                ,$SlideShow.nl
                                 ,$Html.text("интерактивных")
-                                ,nl
+                                ,$SlideShow.nl
                                 ,$Html.text("Web-приложений")
-                                ,nl
+                                ,$SlideShow.nl
                                 ,$Html.text("на языке Elm")
-                                ,nl
-                                ,nl
-                                ,A2($Html.img,_U.list([$Html$Attributes.src("static/elm.png")]),_U.list([]))])))
-                        ,A2(slide,
+                                ,$SlideShow.nl
+                                ,$SlideShow.nl
+                                ,$SlideShow.img_("static/elm.png")
+                                ,$SlideShow.nl
+                                ,$SlideShow.nl
+                                ,note(_U.list([$Html.text("Алексей Пирогов")]))])))
+                        ,A2(section,"Введение","что за Elm?")
+                        ,A2($SlideShow.slide,
                         "Elm?",
                         _U.list([$Html.text("Elm, это")
-                                ,ul_(_U.list([$Html.text("Функциональный язык")
-                                             ,$Html.text("Сильная статическая типизация")
-                                             ,$Html.text("Алгебраические Типы Данных")
-                                             ,$Html.text("Компиляция в JavaScript")
-                                             ,$Html.text("Нацеленность на построение UI")
-                                             ,$Html.text("Контроль над side-эффектами")
-                                             ,$Html.text("FRP, Time-travel Debugging, ...")]))]))
-                        ,A2(slide,
-                        "Установка",
-                        _U.list([A2(source,"shell","$ npm install -g elm")
-                                ,ul_(A2($List.map,code_,_U.list(["elm-make","elm-package","elm-reactor","elm-repl"])))]))
-                        ,A2(slide,
+                                ,$SlideShow.ul_(_U.list([$Html.text("Функциональный язык")
+                                                        ,$Html.text("Сильная статическая типизация")
+                                                        ,$Html.text("Алгебраические Типы Данных")
+                                                        ,$Html.text("Компиляция в JavaScript")
+                                                        ,$Html.text("Нацеленность на построение UI")
+                                                        ,$Html.text("Контроль над side-эффектами")
+                                                        ,$Html.text("FRP, Time-travel Debugging, ...")]))]))
+                        ,A2(section,"С чего начать?","готовим окружение")
+                        ,A2($SlideShow.slide,"Установка",_U.list([A2($SlideShow.source,"shell","$ npm install -g elm")]))
+                        ,A2($SlideShow.slide,
+                        "Компоненты",
+                        _U.list([$SlideShow.ul_(A2($List.map,$SlideShow.code_,_U.list(["elm-make","elm-package","elm-reactor","elm-repl"])))]))
+                        ,A2($SlideShow.slide,
+                        "Минимальный проект",
+                        _U.list([A2($SlideShow.source,
+                        "shell",
+                        "$ tree\n.\n└── Main.elm\n\n0 directories, 1 file\n\n$ cat Main.elm\nmodule Main where\n\nimport Graphics.Element exposing (show)\n\nmain = show \"Hello World!\"")]))
+                        ,A2($SlideShow.slide,
+                        "Минимальный проект (запуск)",
+                        _U.list([A2($SlideShow.source,
+                        "shell",
+                        "$ elm-make Main.elm\nSome new packages are needed.\nHere is the upgrade plan.\n\n  Install:\n    elm-lang/core 3.0.0\n\nDo you approve of this plan? (y/n) y\n...\nSuccessfully generated index.html")]))
+                        ,A2(section,"Синтаксис","кратенько")
+                        ,A2($SlideShow.slide,
                         "Синтаксис",
-                        _U.list([A2(source,
-                        "elm",
-                        "-- Алгебраические Типы Данных\n\ntype Color = Red | Green | Blue\n\ntype Point = Point Int Int\n\ntype Shape\n  = Circle   Point Int\n  | Triangle Point Point Point\n  | Rect     Point Point")]))
-                        ,A2(slide,
+                        A3(snippet,
+                        _U.list([$Html.text("Алгебраические Типы Данных:")]),
+                        "type Color = Red | Green | Blue\n\ntype Point = Point Int Int\n\ntype Shape\n  = Circle   Point Int\n  | Triangle Point Point Point\n  | Rect     Point Point",
+                        $Maybe.Nothing))
+                        ,A2($SlideShow.slide,
                         "Синтаксис",
-                        _U.list([A2(source,
-                        "elm",
-                        "-- Записи (Records)\n\ntype User =\n  User { name : String\n       , age : Int\n       }\n\nuser = User { name = \"Moe\", age = 42 }\n\nuserAge = user.age\n\nnewUser = { user | age = user.age + 1 }")]))
-                        ,A2(slide,
+                        A3(snippet,
+                        _U.list([$Html.text("Записи (Records):")]),
+                        "type alias User =\n  { name : String\n  , age  : Int    }\n\nuser = { name = \"Moe\", age = 42 }\n\nuserAge = user.age\n\nnewUser = { user | age = user.age + 1 }",
+                        $Maybe.Nothing))
+                        ,A2($SlideShow.slide,
                         "Синтаксис",
-                        _U.list([A2(source,
-                        "elm",
-                        "-- Функции\n\nadd : Int -> Int -> Int\nadd x y = x + y\n\nwrap\n  : String -> String -> Int -> String\nwrap s1 s2 x =\n  String.append s1\n  <| String.append (toString x) s2\n\ninBrackets : Int -> String\ninBrackets = wrap \"[\" \"]\"")]))
-                        ,A2(slide,"Базис",_U.list([ul_(_U.list([$Html.text("Element"),$Html.text("Signal")]))]))
-                        ,demo
-                        ,A2(slide,
-                        "Model-View-Update",
-                        _U.list([ul_(_U.list([code_("evancz/start-app"),code_("evancz/elm-html"),$Html.text("SimpleApp, Html")]))]))
-                        ,demo
-                        ,A2(slide,"Effects",_U.list([ul_(_U.list([code_("evancz/elm-effects"),$Html.text("Effects")]))]))
-                        ,demo
-                        ,A2(slide,"HTTP",_U.list([ul_(_U.list([code_("evancz/elm-http"),$Html.text("Http, Task")]))]))
-                        ,demo
-                        ,title(A2(_op["<::"],slide("The End"),$Html.text("Вопросы?")))]);
-   var app = $StartApp.start({init: {ctor: "_Tuple2",_0: init(slides),_1: $Effects.none},view: view,update: update,inputs: _U.list([leftRight])});
-   var main = app.html;
-   return _elm.Slides.values = {_op: _op
-                               ,main: main
-                               ,app: app
-                               ,Forward: Forward
-                               ,Backward: Backward
-                               ,slides: slides
-                               ,init: init
-                               ,view: view
-                               ,update: update
-                               ,leftRight: leftRight
-                               ,slide: slide
-                               ,title: title
-                               ,demo: demo
-                               ,nl: nl
-                               ,ul_: ul_
-                               ,code_: code_
-                               ,source: source};
+                        A3(snippet,
+                        _U.list([$Html.text("Функции")]),
+                        "add : Int -> Int -> Int\nadd x y = x + y\n\nadd5 : Int -> Int\nadd5 = add 5",
+                        $Maybe.Nothing))
+                        ,A2(section,"It\'s alive!","Концепция, или галопом по FRP")
+                        ,A2($SlideShow.slide,
+                        "Концепция",
+                        _U.list([A2($Html.div,
+                        _U.list([$Html$Attributes.$class("center")]),
+                        _U.list([$Html.text("\"Stream processing")
+                                ,$SlideShow.nl
+                                ,$Html.text("lets us model systems that have state")
+                                ,$SlideShow.nl
+                                ,$Html.text("without ever using")
+                                ,$SlideShow.nl
+                                ,$Html.text("assignment or mutable data.\"")
+                                ,$SlideShow.nl
+                                ,note(_U.list([$Html.text("SICP")]))]))]))
+                        ,A2($SlideShow.slide,
+                        "Концепция",
+                        _U.list([$SlideShow.code_("Signal")
+                                ,$Html.text(" + ")
+                                ,$SlideShow.code_("Element")
+                                ,$Html.text(" = основа всего!")
+                                ,$SlideShow.nl
+                                ,$SlideShow.nl
+                                ,$Html.text("Самый главный тип в приложении:")
+                                ,A2($SlideShow.source,"elm","main : Signal Element\nmain = show \"Hello world!\"")
+                                ,$SlideShow.nl
+                                ,$Html.text("Другой пример:")
+                                ,A2($SlideShow.source,
+                                "elm",
+                                "import Mouse\n\nMouse.x        : Signal Int\nMouse.position : Signal (Int, Int)\nMouse.isDown   : Signal Bool")]))
+                        ,A2($SlideShow.slide,
+                        "Концепция",
+                        A3(snippet,
+                        _U.list([$Html.text("Работа с сигналами:")]),
+                        "clicks =\n  Signal.foldp (+) 0\n  <| Signal.map (always 1)\n       Mouse.clicks\n\nmain =\n  Signal.map show\n  <| Signal.map2 (,) clicks Mouse.isDown",
+                        $Maybe.Just("import Graphics.Element exposing (centered)\nimport Text\nimport Signal\nimport Mouse\n\nclicks =\n  Signal.foldp (+) 0\n  <| Signal.map (always 1)\n       Mouse.clicks\n\nmain =\n  Signal.map show\n  <| Signal.map2 (,) clicks Mouse.isDown\n\nshow =\n  centered << Text.height 40\n  << Text.fromString << toString")))
+                        ,A2($SlideShow.slide,
+                        "Концепция",
+                        _U.list([$Html.text("Ещё примеры:")
+                                ,$SlideShow.ul_(_U.list([A2(share,"56d6dd25e4b070fd20daa274","red circle")
+                                                        ,A2(share,"56d7e93ce4b070fd20daa2e1","blue circle")]))]))
+                        ,A2(section,"Ближе к Web","Дайте уже мне HTML и CSS!")
+                        ,A2($SlideShow.slide,
+                        "Web",
+                        A3(snippet,
+                        _U.list([$Html.text("(HTML + CSS) * Elm = ")
+                                ,A2($package,"evancz/elm-html/4.0.2","elm-html")
+                                ,$Html.text("(")
+                                ,A2(a_,"https://mbylstra.github.io/html-to-elm/","*")
+                                ,$Html.text("):")]),
+                        "page =\n  div [ class \"content\" ]\n    [ h1 [ style [ (\"color\", \"red\") ] ]\n         [ text \"Hello, World!\" ]\n    , ul [ id \"items\" ]\n         [ item \"apple\"\n         , item \"orange\" ]]\n\nitem x = li [] [ text x ]",
+                        $Maybe.Just("import Html exposing (..)\nimport Html.Attributes exposing (..)\nimport Signal\n\nmain =\n  Signal.constant page\n\npage =\n  div [ class \"content\" ]\n    [ h1 [ style [ (\"color\", \"red\") ] ]\n       [ text \"Hello, World!\" ]\n    , ul [ id \"items\" ]\n       [ item \"apple\"\n       , item \"orange\" ]]\n\nitem x = li [] [ text x ]")))
+                        ,A2($SlideShow.slide,
+                        "Web",
+                        A3(snippet,
+                        _U.list([$Html.text("Model-View-Action-Update ("),A2($package,"evancz/start-app/2.0.2","start-app"),$Html.text("):")]),
+                        "model : Model\n\nview : Model -> Html\n\nupdate : Action -> Model -> Model",
+                        $Maybe.Just("import StartApp.Simple as StartApp\nimport Html exposing (..)\nimport Html.Events exposing (onClick)\n\ntype Action = Inc | Dec\n\nmain =\n  StartApp.start\n  { model = model\n  , view = view\n  , update = update\n  }\n\nmodel = 0\n\nview address model =\n  div []\n    [ h1 [] [ text <| toString model ]\n    , button [ onClick address Dec ] [ text \"-\" ]\n    , button [ onClick address Inc ] [ text \"+\" ]\n    ]\n\nupdate action model =\n  case action of\n    Inc -> model + 1\n    Dec -> model - 1")))
+                        ,A2(section,"Напоследок","Да-да, уже почти конец!")
+                        ,A2($SlideShow.slide,
+                        "Напоследок",
+                        _U.list([$Html.text("Плюсы:")
+                                ,$SlideShow.ul_(_U.list([$Html.text("Отличный tooling!")
+                                                        ,$Html.text("Null-safety")
+                                                        ,$Html.text("Отсутствие исключений в runtime")
+                                                        ,A2(a_,"https://github.com/evancz/elm-architecture-tutorial/","Elm architecture")
+                                                        ,A2(a_,"http://package.elm-lang.org/","Elm Packages")]))]))
+                        ,A2($SlideShow.slide,
+                        "Напоследок",
+                        _U.list([$Html.text("Минусы:")
+                                ,$SlideShow.ul_(_U.list([$Html.text("Язык ещё молод и всё ещё меняется")
+                                                        ,$Html.text("Elm - не General Purpose Language")
+                                                        ,$Html.text("Сообщество elmer\'ов не слишком велико")
+                                                        ,$Html.text("Иногда приходится писать на JavaScript")
+                                                        ,$Html.text("Elm сияет, когда \"стоит у руля\"")]))]))
+                        ,A2($SlideShow.slide,
+                        "Напоследок",
+                        _U.list([$Html.text("Стоит упомянуть:")
+                                ,$SlideShow.ul_(_U.list([A2(a_,"http://elm-lang.org/guide/interop#ports","JavaScript interop")
+                                                        ,A2(a_,"https://evancz.github.io/todomvc-perf-comparison/","Benchmarks!")
+                                                        ,A2(a_,"http://debug.elm-lang.org/","Time Traveling Debugger")
+                                                        ,A2(a_,"http://builtwithelm.co/","\"Built with Elm\"")
+                                                        ,A2(a_,"http://www.elm-tutorial.org/","Elm tutorial")]))]))
+                        ,A2(section,"The End","Вопросы?")]);
+   var main = function (_) {    return _.html;}($SlideShow.start(slides));
+   return _elm.Slides.values = {_op: _op,main: main,slides: slides,section: section,note: note,snippet: snippet,a_: a_,share: share,$package: $package};
 };

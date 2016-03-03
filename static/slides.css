@@ -87,3 +87,16 @@ div.nav-bar {
     font-size: 100%;
     color: #596278;
 }
+
+.note {
+    font-size: 14pt;
+    font-weight: normal;
+}
+
+textarea {
+    height: 18px;
+}
+
+div.center {
+    text-align: center;
+}
